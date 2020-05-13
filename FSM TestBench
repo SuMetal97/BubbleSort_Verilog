@@ -1,0 +1,177 @@
+`timescale 1ns / 1ps
+
+////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer:
+//
+// Create Date:   21:27:36 05/01/2020
+// Design Name:   FSM
+// Module Name:   C:/Users/dakot/Documents/Final/FSM_tb.v
+// Project Name:  Final
+// Target Device:  
+// Tool versions:  
+// Description: 
+//
+// Verilog Test Fixture created by ISE for module: FSM
+//
+// Dependencies:
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+////////////////////////////////////////////////////////////////////////////////
+
+module FSM_tb;
+
+	// Inputs
+	reg [7:0] in_data;
+	reg in_valid;
+	reg clk;
+	reg reset;
+
+	// Outputs
+	wire [7:0] out_data;
+	wire out_valid;
+	wire [1:0]state;
+	wire [7:0] in_data0;
+	wire [7:0] in_data1;
+	wire [7:0] in_data2;
+	wire [7:0] in_data3;
+	wire [7:0] in_data4;
+	wire [7:0] in_data5;
+	wire [7:0] in_data6;
+	wire [7:0] in_data7;
+
+	// Instantiate the Unit Under Test (UUT)
+	FSM uut (
+		.in_data(in_data), 
+		.in_valid(in_valid), 
+		.clk(clk), 
+		.reset(reset), 
+		.out_data(out_data), 
+		.out_valid(out_valid),
+		.state(state),
+		.in_data0(in_data0),
+		.in_data1(in_data1),
+		.in_data2(in_data2),
+		.in_data3(in_data3),
+		.in_data4(in_data4),
+		.in_data5(in_data5),
+		.in_data6(in_data6),
+		.in_data7(in_data7)
+	);
+	
+	always 
+	begin
+	clk = 0;
+	#10;
+	clk = 1;
+	#10;
+	end
+
+
+	initial begin
+		// Initialize Inputs
+		in_data = 0;
+		in_valid = 0;
+		clk = 0;
+		reset = 1;
+
+		// Wait 100 ns for global reset to finish
+		#100;
+		reset = 0;
+		//data set 1
+		in_valid = 1;
+		in_data = 5;
+		#20;
+		in_data = 2;
+		#20;
+		in_data = 56;
+		#20;
+		in_data = 21;
+		#20;
+		in_data = 121;
+		#20;
+		in_data = 1;
+		#20;
+		in_data = 14;
+		#20;
+		in_data = 32;
+		#20		
+		in_valid = 0;
+		
+		//data set 2
+		#400;
+		in_valid = 1;
+		in_data = 1;
+		#20;
+		in_data = 2;
+		#20;
+		in_data = 3;
+		#20;
+		in_data = 4;
+		#20;
+		in_data = 5;
+		#20;
+		in_data = 6;
+		#20;
+		in_data = 7;
+		#20;
+		in_data = 8;
+		#20
+		
+		in_valid = 0;
+		#400;
+		//test 3
+		in_valid = 1;
+		in_data = 1;
+		#20;
+		in_data = 144;
+		#20;
+		in_data = 123;
+		#20;
+		in_data = 47;
+		#20;
+		in_data = 5;
+		#20;
+		in_data = 68;
+		#20;
+		in_data = 91;
+		#20;
+		in_data = 100;
+		#20
+		
+		in_valid = 0;
+		#400;
+		//test 4
+		in_valid = 1;
+		in_data = 20;
+		#20;
+		in_data = 30;
+		#20;
+		in_data = 30;
+		#20;
+		in_data = 40;
+		#20;
+		in_data = 50;
+		#20;
+		in_data = 60;
+		#20;
+		in_data = 70;
+		#20;
+		in_data = 80;
+		#20
+		
+		in_valid = 0;
+		#400;
+		
+		
+		
+        
+		// Add stimulus here
+
+	end
+      
+endmodule
+
