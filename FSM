@@ -1,0 +1,303 @@
+`timescale 1ns / 1ps
+`define INIT 0
+`define STORE 1
+`define BUBBLE 2
+`define DUMP 3
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    12:55:23 05/01/2020 
+// Design Name: 
+// Module Name:    FSM 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
+module FSM(in_data, in_valid, clk, reset, out_data, out_valid, state,in_data0,in_data1,in_data2,in_data3,in_data4,in_data5,in_data6,in_data7);
+		input [7:0]in_data;
+		input in_valid;
+		input clk;
+		input reset;
+		output reg [7:0]out_data;
+		output reg out_valid;
+		output reg[1:0] state;
+		output reg [7:0] in_data0;
+		output reg [7:0] in_data1;
+		output reg [7:0] in_data2;
+		output reg [7:0] in_data3;
+		output reg [7:0] in_data4;
+		output reg [7:0] in_data5;
+		output reg [7:0] in_data6;
+		output reg [7:0] in_data7;
+		
+		
+		wire data0_less;
+		wire data1_less;
+		wire data2_less;
+		wire data3_less;
+		wire data4_less;
+		wire data5_less;
+		wire data6_less;
+		
+		wire second_less;
+		wire output_less;
+
+		
+		wire [7:0]second_add;
+		wire [7:0]index_add;
+		wire [7:0]output_add;
+		
+		reg [1:0] current_state;
+		reg [1:0] next_state;
+		
+		reg [7:0] input_index;
+		reg [7:0] second_index;
+		reg [7:0] output_index;
+		reg constant = 8;
+		reg [7:0] temp;
+		
+		
+		add_one ind(.A_in(input_index), .clk(clk), .Out(index_add));
+		add_one sec(.A_in(second_index), .clk(clk), .Out(second_add));
+		add_one out(.A_in(output_index), .clk(clk), .Out(output_add));
+		
+		Compare_lessthan d0(.A_in(in_data0), .B_in(in_data1), .Out(data0_less));
+		Compare_lessthan d1(.A_in(in_data1), .B_in(in_data2), .Out(data1_less));
+		Compare_lessthan d2(.A_in(in_data2), .B_in(in_data3), .Out(data2_less));
+		Compare_lessthan d3(.A_in(in_data3), .B_in(in_data4), .Out(data3_less));
+		Compare_lessthan d4(.A_in(in_data4), .B_in(in_data5), .Out(data4_less));
+		Compare_lessthan d5(.A_in(in_data5), .B_in(in_data6), .Out(data5_less));
+		Compare_lessthan d6(.A_in(in_data6), .B_in(in_data7), .Out(data6_less));
+		Compare_lessthan secless(.A_in(second_index), .B_in(input_index), .Out(second_less));
+		Compare_lessthan outless(.A_in(output_index), .B_in(input_index), .Out(output_less));
+		
+		
+		//initialization of the data RESET MUST BE USED AT FIRST USE BUT CAN BE IGNORED AFTERWARDS
+		always @(posedge clk) begin
+			if(reset) begin
+				input_index <= 'd0;
+				in_data0 <= 'd0;
+				in_data1 <= 'd0;
+				in_data2 <= 'd0;
+				in_data3 <= 'd0;
+				in_data4 <= 'd0;
+				in_data5 <= 'd0;
+				in_data6 <= 'd0;
+				in_data7 <= 'd0;
+			end
+			else begin
+				if(current_state == `STORE || (current_state == `INIT)&&in_valid) begin
+					input_index <= index_add;
+					case(input_index)
+						'd0: in_data0 <= in_data;
+						'd1: in_data1 <= in_data;
+						'd2: in_data2 <= in_data;
+						'd3: in_data3 <= in_data;
+						'd4: in_data4 <= in_data;
+						'd5: in_data5 <= in_data;
+						'd6: in_data6 <= in_data;
+						'd7: in_data7 <= in_data;
+					endcase
+				end
+				else if(current_state == `INIT) begin
+					input_index <= 'd0;
+					output_index <= 'd0;
+					second_index <= 'd0;
+					in_data0 <= 'd0;
+					in_data1 <= 'd0;
+					in_data2 <= 'd0;
+					in_data3 <= 'd0;
+					in_data4 <= 'd0;
+					in_data5 <= 'd0;
+					in_data6 <= 'd0;
+					in_data7 <= 'd0;
+				end
+			end
+		end
+		
+		
+    always @(posedge clk) begin
+		if(reset) begin
+			second_index <= 'd0;
+		end
+		else if (current_state == `BUBBLE) begin
+			if(second_less) begin
+				second_index <= second_add;
+			end
+			else begin
+				second_index <= second_index;
+			end
+		end
+		else if(current_state == `INIT) begin
+			second_index <= 'd0;
+		end
+		else begin
+			second_index <= second_index;
+		end
+	end
+			
+	//dump out the outputs
+	always @(posedge clk) begin
+		if(reset) begin
+			output_index <= 'd0;
+		end
+		else if(current_state == `DUMP) begin
+			if(output_less) begin
+				output_index <= output_add;
+				out_valid <= 1'b1;
+				case(output_index)
+					'd0: out_data <= in_data0;
+					'd1: out_data <= in_data1;
+					'd2: out_data <= in_data2;
+					'd3: out_data <= in_data3;
+					'd4: out_data <= in_data4;
+					'd5: out_data <= in_data5;
+					//have to put this here as the system would lag for one clock pulse from this i.e. 9 data sent rather than 8
+					'd6: begin
+						out_data <= in_data6;
+						current_state <= `INIT;
+						next_state <= `INIT;
+						end
+					'd7:
+						out_data <= in_data7;
+				
+					
+					default: begin 
+						current_state <= `INIT;
+						next_state <= `INIT;
+					end
+				endcase
+			end
+			else begin
+				out_data <= out_data;
+			end
+		end
+		else if(current_state == `INIT) begin
+			out_data <= 'd0;
+			out_valid <= 1'b0;
+			output_index <= 1'b0;
+		end
+	end
+	
+	always @(posedge clk) begin
+		if(current_state == `BUBBLE) begin
+			//seperate the swaps, if not data gets corrupted
+			if(second_index[0:0] == 1'b1) begin
+				if(data1_less) begin
+					
+					in_data1 <= in_data2;
+					in_data2 <= in_data1;
+				end
+				if(data3_less) begin
+					
+					in_data3 <= in_data4;
+					in_data4 <= in_data3;
+				end
+				if(data5_less) begin
+					
+					in_data5 <= in_data6;
+					in_data6 <= in_data5;
+				end
+			end
+			else begin
+				if(data0_less) begin
+					
+					in_data0 <= in_data1;
+					in_data1 <= in_data0;
+				end
+				if(data2_less) begin
+					
+					in_data2 <= in_data3;
+					in_data3 <= in_data2;
+				end
+				if(data4_less) begin
+					
+					in_data4 <= in_data5;
+					in_data5 <= in_data4;
+				end
+				if(data6_less) begin
+				
+					in_data6 <= in_data7;
+					in_data7 <= in_data6;
+				end
+			end
+		end
+	end
+
+	//set the next state to current state on clock pulse
+	always @(posedge clk) begin
+		if(reset) begin
+			current_state <= `INIT;
+		end
+		else begin
+			current_state <= next_state;
+			
+		end
+		state <= current_state;
+	end
+	
+	// the conditions to set the next state
+	always @(current_state or in_valid or second_index or input_index or output_index) begin
+		case(current_state)
+			`INIT: begin
+				if(in_valid) begin
+					next_state <= `STORE;
+				end
+				else begin
+					next_state <= current_state;
+				end
+			end
+			`STORE: begin
+				if(!in_valid) begin
+					next_state <= `BUBBLE;
+				end
+				else begin
+					next_state <= current_state;
+				end
+			end
+			`BUBBLE: begin
+				if(second_less) begin
+					next_state <= current_state;
+				end
+				else begin
+					next_state <= `DUMP;
+				end
+				if (!data0_less) begin
+					if (!data1_less) begin
+						if (!data2_less) begin
+							if (!data3_less) begin
+								if (!data4_less) begin
+									if (!data5_less) begin
+										if (!data6_less) begin
+											next_state <= `DUMP;
+					
+				end
+					
+				end
+					
+				end
+					
+				end
+					
+				end
+					
+				end
+					
+				end
+			end
+			`DUMP: begin
+				//I handle this in the dump process itself
+			end
+		endcase
+	end
+			
+endmodule
