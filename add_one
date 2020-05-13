@@ -1,0 +1,30 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    12:34:16 05/01/2020 
+// Design Name: 
+// Module Name:    add_one 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+//////////////////////////////////////////////////////////////////////////////////
+module add_one(A_in, clk,  Out);
+input [7:0]A_in;
+input clk;
+output reg [7:0]Out;
+
+always @(posedge clk)
+begin
+assign Out = A_in +1'b1;
+end
+endmodule
